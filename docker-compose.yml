@@ -1,0 +1,66 @@
+version: '3.1'
+
+networks:
+  dev-network:
+
+volumes:
+  data-09082021:
+
+services:
+  mariadb:
+    build:
+      context: ./mariadb
+    tty: true
+    environment: 
+      - MYSQL_RANDOM_ROOT_PASSWORD=${MYSQL_RANDOM_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes: 
+      - type: volume
+        source: data-09082021
+        target: /var/lib/mysql
+    networks:
+      - dev-network
+    restart: always
+
+  adminer:
+      image: adminer
+      restart: always
+      expose: 
+          - 8080
+      ports: 
+          - "8080:8080"
+      networks:
+        - dev-network
+  # docker-php-cli:
+  #   build: 
+  #     context: ./php-cli
+  #   tty: true
+  #   volumes:
+  #     - ./app:/var/www
+  #   networks:
+  #     - web-network
+
+  nginx:
+    build: 
+      context: ./nginx-server
+    # defines the port mapping
+    # corresponds to the "-p" flag
+    ports:
+      - "8001:80"
+    tty: true
+    volumes:
+      - ./app:/var/www
+      - ./nginx-server/conf.d:/etc/nginx/conf.d
+    networks:
+      - dev-network
+
+  php-fpm:
+    build: 
+      context: ./php-fpm
+    tty: true
+    volumes:
+      - ./app:/var/www
+    networks:
+      - dev-network
