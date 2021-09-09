@@ -1,10 +1,17 @@
+
 version: '3.1'
 
 networks:
   dev-network:
 
+# If you don't assign an external volume then a volume will be created on first use.
+# The name for the volume will be prefixed with this files parent directory name:
+# php-fpm-nginx-environment_dbase
+#
+# To include an external volume use external: true
 volumes:
-  data-09082021:
+  dbase:
+    # external: true
 
 services:
   mariadb:
